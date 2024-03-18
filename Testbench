@@ -1,0 +1,74 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity SequenceDetector_tb is
+end SequenceDetector_tb;
+
+architecture Behavioral of SequenceDetector_tb is
+    -- Constants
+    constant CLOCK_PERIOD : time := 10 ns;
+
+    -- Signals for test bench
+    signal clk_tb : STD_LOGIC := '0';
+    signal reset_tb : STD_LOGIC := '1';  -- Assert reset initially
+    signal input_bit_tb : STD_LOGIC := '0';
+    signal sequence_detected_tb : STD_LOGIC;
+
+begin
+    -- Instantiate the DUT (Device Under Test)
+    dut : entity work.SequenceDetector
+        port map (
+            clk => clk_tb,
+            reset => reset_tb,
+            input_bit => input_bit_tb,
+            sequence_detected => sequence_detected_tb
+        );
+
+    -- Clock process
+    clk_process : process
+    begin
+        while now < 100 ns loop
+            clk_tb <= '0';
+            wait for CLOCK_PERIOD / 2;
+            clk_tb <= '1';
+            wait for CLOCK_PERIOD / 2;
+        end loop;
+        wait;
+    end process clk_process;
+
+    -- Stimulus process
+    stimulus_process : process
+    begin
+        -- Reset assertion
+        reset_tb <= '1';
+        wait for 20 ns;
+
+        -- Release reset
+        reset_tb <= '0';
+        wait for 10 ns;
+
+        -- Input sequence "1000"
+        input_bit_tb <= '1';
+        wait for CLOCK_PERIOD;
+        input_bit_tb <= '0';
+        wait for CLOCK_PERIOD;
+        input_bit_tb <= '0';
+        wait for CLOCK_PERIOD;
+        input_bit_tb <= '0';
+        wait for CLOCK_PERIOD;
+
+        -- Other inputs (not part of the sequence)
+        input_bit_tb <= '1';
+        wait for CLOCK_PERIOD;
+        input_bit_tb <= '1';
+        wait for CLOCK_PERIOD;
+        input_bit_tb <= '1';
+        wait for CLOCK_PERIOD;
+        input_bit_tb <= '1';
+        wait for CLOCK_PERIOD;
+
+        wait;
+
+    end process stimulus_process;
+
+end Behavioral;
