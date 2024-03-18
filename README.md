@@ -1,0 +1,1 @@
+# Sequence-detection-of-1000-using-Mealy-Machine
