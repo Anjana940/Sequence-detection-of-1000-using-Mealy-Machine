@@ -1,0 +1,69 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity SequenceDetector is
+    Port (
+        clk : in  STD_LOGIC;
+        reset : in  STD_LOGIC;
+        input_bit : in  STD_LOGIC;
+        sequence_detected : out STD_LOGIC
+    );
+end SequenceDetector;
+
+architecture Behavioral of SequenceDetector is
+    -- Define states
+    type State_type is (S0, S1, S2, S3);
+    signal current_state, next_state : State_type;
+    signal output_bit : STD_LOGIC;
+
+begin
+    -- State transition process
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            current_state <= S0;  -- Reset to initial state
+        elsif rising_edge(clk) then
+            current_state <= next_state;  -- Update state on clock edge
+        end if;
+    end process;
+
+    -- Output generation process
+    process(current_state, input_bit)
+    begin
+        case current_state is
+            when S0 =>
+                if input_bit = '1' then
+                    next_state <= S1;
+                else
+                    next_state <= S0;
+                end if;
+                output_bit <= '0';
+            when S1 =>
+                if input_bit = '0' then
+                    next_state <= S2;
+                else
+                    next_state <= S0;
+                end if;
+                output_bit <= '0';
+            when S2 =>
+                if input_bit = '0' then
+                    next_state <= S3;
+                else
+                    next_state <= S0;
+                end if;
+                output_bit <= '0';
+            when S3 =>
+                if input_bit = '0' then
+                    next_state <= S0;
+                    output_bit <= '1';  -- Output '1' when sequence detected
+                else
+                    next_state <= S0;
+                    output_bit <= '0';
+                end if;
+        end case;
+    end process;
+
+    -- Assign the output of the Mealy machine
+    sequence_detected <= output_bit;
+
+end Behavioral;
